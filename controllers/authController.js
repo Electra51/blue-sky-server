@@ -6,15 +6,10 @@ export const registerController = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name) {
-      return res.send({ message: "UserName is Required" });
+    if (!name || !email || !password) {
+      return res.send({ message: "fields are Required" });
     }
-    if (!email) {
-      return res.send({ message: "Email is Required" });
-    }
-    if (!password) {
-      return res.send({ message: "Password is Required" });
-    }
+    const hashedPassword = await hashPassword(password);
 
     //check user
     const exisitingUser = await userModel.findOne({ email });
@@ -26,9 +21,8 @@ export const registerController = async (req, res) => {
         message: "Already Register please login",
       });
     }
-    //register user
-    const hashedPassword = await hashPassword(password);
-    //save
+
+    //save user
     const user = await new userModel({
       name,
       email,
@@ -44,7 +38,7 @@ export const registerController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Errro in Registeration",
+      message: "Error in Registeration",
       error,
     });
   }
@@ -98,14 +92,5 @@ export const loginController = async (req, res) => {
       message: "Error in login",
       error,
     });
-  }
-};
-
-export const testController = (req, res) => {
-  try {
-    res.send("Protected Routes");
-  } catch (error) {
-    console.log(error);
-    res.send({ error });
   }
 };
